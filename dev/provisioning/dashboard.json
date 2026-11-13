@@ -1,0 +1,288 @@
+{
+  "kind": "Dashboard",
+  "metadata": {
+    "name": "statetimeline",
+    "project": "demo"
+  },
+  "spec": {
+    "display": {
+      "name": "State timeline"
+    },
+    "duration": "3h",
+    "refreshInterval": "0s",
+    "variables": [],
+    "panels": {
+      "pods": {
+        "kind": "Panel",
+        "spec": {
+          "display": {
+            "name": "Pod phase",
+            "description": "kube_pod_status_phase in label mode: one row per pod, the state is the phase label of the series that is 1."
+          },
+          "plugin": {
+            "kind": "StateTimelineChart",
+            "spec": {
+              "mode": "label",
+              "rowLabels": [
+                "namespace",
+                "pod"
+              ],
+              "stateLabel": "phase",
+              "sorting": "asc",
+              "legend": {
+                "position": "bottom"
+              }
+            }
+          },
+          "queries": [
+            {
+              "kind": "TimeSeriesQuery",
+              "spec": {
+                "plugin": {
+                  "kind": "PrometheusTimeSeriesQuery",
+                  "spec": {
+                    "query": "kube_pod_status_phase{namespace=\"shop\"}"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "nodes": {
+        "kind": "Panel",
+        "spec": {
+          "display": {
+            "name": "Node Ready",
+            "description": "kube_node_status_condition in label mode, with value mappings that rename and colour the status."
+          },
+          "plugin": {
+            "kind": "StateTimelineChart",
+            "spec": {
+              "mode": "label",
+              "rowLabels": [
+                "node"
+              ],
+              "stateLabel": "status",
+              "sorting": "worst",
+              "mappings": [
+                {
+                  "kind": "Value",
+                  "spec": {
+                    "value": "false",
+                    "result": {
+                      "value": "NotReady",
+                      "color": "#e53935"
+                    }
+                  }
+                },
+                {
+                  "kind": "Value",
+                  "spec": {
+                    "value": "unknown",
+                    "result": {
+                      "value": "Unknown",
+                      "color": "#fb8c00"
+                    }
+                  }
+                },
+                {
+                  "kind": "Value",
+                  "spec": {
+                    "value": "true",
+                    "result": {
+                      "value": "Ready",
+                      "color": "#43a047"
+                    }
+                  }
+                }
+              ],
+              "legend": {
+                "position": "bottom"
+              }
+            }
+          },
+          "queries": [
+            {
+              "kind": "TimeSeriesQuery",
+              "spec": {
+                "plugin": {
+                  "kind": "PrometheusTimeSeriesQuery",
+                  "spec": {
+                    "query": "kube_node_status_condition{condition=\"Ready\"}"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "rollouts": {
+        "kind": "Panel",
+        "spec": {
+          "display": {
+            "name": "Deployment rollouts",
+            "description": "A numeric gauge in value mode: value mappings turn 0, 1 and 2 into states."
+          },
+          "plugin": {
+            "kind": "StateTimelineChart",
+            "spec": {
+              "mode": "value",
+              "sorting": "asc",
+              "mappings": [
+                {
+                  "kind": "Value",
+                  "spec": {
+                    "value": "0",
+                    "result": {
+                      "value": "Complete",
+                      "color": "#43a047"
+                    }
+                  }
+                },
+                {
+                  "kind": "Value",
+                  "spec": {
+                    "value": "1",
+                    "result": {
+                      "value": "Progressing",
+                      "color": "#1e88e5"
+                    }
+                  }
+                },
+                {
+                  "kind": "Value",
+                  "spec": {
+                    "value": "2",
+                    "result": {
+                      "value": "Failed",
+                      "color": "#e53935"
+                    }
+                  }
+                }
+              ],
+              "legend": {
+                "position": "right"
+              }
+            }
+          },
+          "queries": [
+            {
+              "kind": "TimeSeriesQuery",
+              "spec": {
+                "plugin": {
+                  "kind": "PrometheusTimeSeriesQuery",
+                  "spec": {
+                    "query": "demo_deployment_rollout_state",
+                    "seriesNameFormat": "{{namespace}} / {{deployment}}"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "targets": {
+        "kind": "Panel",
+        "spec": {
+          "display": {
+            "name": "Scrape targets",
+            "description": "Value mode with mappings; the gaps are times the target was not scraped at all."
+          },
+          "plugin": {
+            "kind": "StateTimelineChart",
+            "spec": {
+              "mode": "value",
+              "sorting": "worst",
+              "showValues": false,
+              "mappings": [
+                {
+                  "kind": "Value",
+                  "spec": {
+                    "value": "1",
+                    "result": {
+                      "value": "Up",
+                      "color": "#43a047"
+                    }
+                  }
+                },
+                {
+                  "kind": "Value",
+                  "spec": {
+                    "value": "0",
+                    "result": {
+                      "value": "Down",
+                      "color": "#e53935"
+                    }
+                  }
+                }
+              ],
+              "legend": {
+                "position": "right"
+              }
+            }
+          },
+          "queries": [
+            {
+              "kind": "TimeSeriesQuery",
+              "spec": {
+                "plugin": {
+                  "kind": "PrometheusTimeSeriesQuery",
+                  "spec": {
+                    "query": "demo_target_up",
+                    "seriesNameFormat": "{{instance}}"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "layouts": [
+      {
+        "kind": "Grid",
+        "spec": {
+          "items": [
+            {
+              "x": 0,
+              "y": 0,
+              "width": 24,
+              "height": 9,
+              "content": {
+                "$ref": "#/spec/panels/pods"
+              }
+            },
+            {
+              "x": 0,
+              "y": 9,
+              "width": 12,
+              "height": 6,
+              "content": {
+                "$ref": "#/spec/panels/nodes"
+              }
+            },
+            {
+              "x": 12,
+              "y": 9,
+              "width": 12,
+              "height": 6,
+              "content": {
+                "$ref": "#/spec/panels/rollouts"
+              }
+            },
+            {
+              "x": 0,
+              "y": 15,
+              "width": 24,
+              "height": 6,
+              "content": {
+                "$ref": "#/spec/panels/targets"
+              }
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

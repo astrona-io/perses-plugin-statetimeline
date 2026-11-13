@@ -1,0 +1,43 @@
+# A local Perses with the plugin, and a made-up cluster whose states change over time to draw.
+# See "Try it locally" in the README.
+name: statetimeline-dev
+
+services:
+  # Writes six hours of history to the shared volume, then serves the live state.
+  fake-metrics:
+    image: docker.io/library/python:3.13-alpine
+    command: ["python", "/app/fake_metrics.py", "--backfill", "/backfill/history.om", "--hours", "6"]
+    volumes:
+      - ./fake_metrics.py:/app/fake_metrics.py:ro,z
+      - backfill:/backfill
+
+  # Loads the history with promtool before it starts, so the timeline is full from the first view.
+  prometheus:
+    image: docker.io/prom/prometheus:v3.5.0
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        until [ -f /backfill/history.om ]; do sleep 1; done
+        if [ ! -f /prometheus/.backfilled ]; then
+          promtool tsdb create-blocks-from openmetrics /backfill/history.om /prometheus && touch /prometheus/.backfilled
+        fi
+        exec prometheus --config.file=/etc/prometheus/prometheus.yml --storage.tsdb.path=/prometheus
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro,z
+      - backfill:/backfill:ro
+    depends_on: [fake-metrics]
+
+  perses:
+    image: docker.io/persesdev/perses:v0.55.1
+    command: ["--config", "/etc/perses/config.yaml"]
+    ports:
+      - "127.0.0.1:${PERSES_PORT:-8080}:8080"
+    volumes:
+      - ./perses.yaml:/etc/perses/config.yaml:ro,z
+      - ./provisioning:/etc/perses/provisioning:ro,z
+      # Holds StateTimeline-<version>.tar.gz from `percli plugin build`.
+      - ./archive:/etc/perses/plugins-archive-statetimeline:ro,z
+    depends_on: [prometheus]
+
+volumes:
+  backfill:

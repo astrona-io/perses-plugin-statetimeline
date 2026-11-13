@@ -5,18 +5,16 @@ the state of things changes over time. Each row is one thing (a deployment, a Fl
 pod, a target) and each state is a coloured band on the dashboard's time axis, from the moment the
 state began to the moment the next one started.
 
-```text
-apps / podinfo     |████ Ready ████████|▒ Reconciling ▒|████ Ready █████████████████|
-apps / backend     |████ Ready ███|░░░░░░░░ Failed ░░░░░░░░░░░░|███ Ready ███████████|
-infra / ingress    |████████████████████ Ready █████████████████████████████████████|
-                   09:00          10:00          11:00          12:00          13:00
-```
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/images/overview-dark.png">
+  <img alt="Four state timelines: pod phase per pod, node Ready per node, deployment rollout state and scrape target up, each a row of coloured bands on the dashboard's time axis" src="docs/images/overview-light.png">
+</picture>
 
 ## Supported versions
 
 | Plugin | Perses | Status |
 | --- | --- | --- |
-| 0.1.x | v0.54.x | Built against v0.54.0 |
+| 0.1.x | v0.55.x | Tested with v0.55.1 |
 
 The plugin is built against `@perses-dev/*` 0.54 and `percli` v0.54.0. Other Perses minor versions may
 work but are not tested.
@@ -38,6 +36,12 @@ per query step, each cell coloured by its value. That fits "what was the value a
 
 `label` mode is what makes Kubernetes metrics usable as-is: kube-state-metrics and flux-operator
 expose a state as a label on a series whose value is 1 when it holds, not as a number.
+
+**When to use which.** Use `StatusHistoryChart` when every step is a measurement of its own, such as
+a value bucketed per step or a status you want to read sample by sample, and the built-in panel is
+enough. Use `StateTimelineChart` when you care about transitions: when a state began, how long it
+lasted, what came next, and where there was no data at all, lined up with the other panels' time
+axis.
 
 ## What it does
 
@@ -81,6 +85,11 @@ expose a state as a label on a series whose value is 1 when it holds, not as a n
 - **Text and tooltip.** With `showValues` (default on) the state is written inside each band that
   is wide enough, in black or white for contrast. The tooltip shows the row, the state, the start and
   end in the dashboard's time zone, and the duration.
+
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/images/tooltip-dark.png">
+    <img alt="The tooltip of a Failed band: the pod, the state, its start and end, and a duration of 10 minutes" src="docs/images/tooltip-light.png">
+  </picture>
 - **Legend.** Optional (`legend`), lists every state shown with its colour.
 - **No data.** When the queries return nothing drawable, the panel shows Perses' usual "No data".
   In `label` mode without a `stateLabel` it asks for one instead. The plugin never invents samples.
@@ -245,6 +254,22 @@ panels:
                 query: flux_resource_info{kind="Kustomization", suspended="false"}
 ```
 
+## Try it locally
+
+`dev/` runs Perses with the plugin, a Prometheus, and a made-up cluster whose pods, nodes, rollouts
+and scrape targets change state over time. It writes six hours of history into Prometheus with
+`promtool` before Prometheus starts, so the timelines are full from the first view, and then keeps
+going live. The screenshots above come from it. It needs `podman compose` or `docker compose`.
+
+```bash
+npm ci && npm run build && percli plugin build
+cp StateTimeline-*.tar.gz dev/archive/
+podman compose -f dev/compose.yaml up -d    # PERSES_PORT=18080 to move it off 8080
+```
+
+Open <http://localhost:8080/projects/demo/dashboards/statetimeline>. `podman compose -f
+dev/compose.yaml down -v` removes it again, history included.
+
 ## Build
 
 You need Node 22 or later, [`percli`](https://github.com/perses/perses/releases/tag/v0.54.0) v0.54.0
@@ -329,7 +354,7 @@ Copy the archive into the directory of bundled plugins. No config change is need
 directory is in the default `archive_paths`:
 
 ```dockerfile
-FROM persesdev/perses:v0.54.0
+FROM persesdev/perses:v0.55.1
 COPY StateTimeline-0.1.0.tar.gz /etc/perses/plugins-archive/
 ```
 
