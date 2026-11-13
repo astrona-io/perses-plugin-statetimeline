@@ -1,0 +1,8 @@
+global:
+  scrape_interval: 15s
+scrape_configs:
+  - job_name: fake-metrics
+    # Keep the instance label of demo_target_up; must match SCRAPE_LABELS in fake_metrics.py.
+    honor_labels: true
+    static_configs:
+      - targets: ["fake-metrics:8000"]

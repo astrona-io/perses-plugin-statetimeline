@@ -20,3 +20,6 @@ dist/
 # external CUE dependencies
 /*/cue.mod/pkg/
 /cue.mod/pkg/
+
+# Python
+__pycache__/

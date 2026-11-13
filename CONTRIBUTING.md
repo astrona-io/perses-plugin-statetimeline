@@ -30,6 +30,9 @@ version in step with the Perses version the plugin targets.
 
 ## Try it in Perses
 
+The quickest way is the `dev/` stack: see "Try it locally" in the README. It is also where the
+README screenshots come from; retake them after a visible change.
+
 `npm run dev` serves the plugin for `percli plugin start` against a running Perses. To test the
 packaged archive instead, put `StateTimeline-<version>.tar.gz` in a directory listed in
 `plugin.archive_paths` (see the README) and restart Perses.
@@ -40,8 +43,8 @@ valid dashboard and rejects a bad one, for example with `percli lint` or Perses'
 
 ## Tests
 
-The project has no test suite beyond lint, type-check and the schema validation in
-`percli plugin build`. If you want to add tests, raise it in an issue first.
+The project has no test suite beyond lint, type-check, the schema validation in `percli plugin build`
+and `cue vet -c schemas/panels/state-timeline-chart/state-timeline-chart.cue schemas/panels/state-timeline-chart/state-timeline-chart.json`. If you want to add tests, raise it in an issue first.
 
 ## Releasing
 

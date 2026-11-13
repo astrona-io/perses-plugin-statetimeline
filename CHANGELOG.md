@@ -26,8 +26,10 @@ All notable changes to this project are documented here. The format follows
 - Panel settings and value mapping editors, and a CUE schema.
 - `Containerfile` for a plugin-only OCI image, for use as a Kubernetes image volume, and a release
   workflow that publishes the archive and the image to GitHub.
+- `dev/` stack: Perses, Prometheus and a made-up cluster whose states change over time, with six
+  hours of backfilled history and a demo dashboard; README screenshots in light and dark.
 
-Tested to build with Perses v0.54.0 packages and `percli` v0.54.0.
+Built against Perses v0.54 packages and `percli` v0.54.0; tested with Perses v0.55.1.
 
 [Unreleased]: https://github.com/astrona-io/perses-plugin-statetimeline/compare/v0.1.0...HEAD
 [0.1.0]: https://github.com/astrona-io/perses-plugin-statetimeline/releases/tag/v0.1.0

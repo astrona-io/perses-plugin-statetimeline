@@ -26,6 +26,10 @@ import { contrastText, paletteIndex } from "./colors";
 
 /** Height of the time axis, labels included. */
 const AXIS_HEIGHT = 28;
+/** Space between the rows and the panel edge opposite the time axis. */
+const GRID_PAD = 4;
+/** Space right of the plot, so the last time label is not cut off. */
+const GRID_RIGHT = 24;
 /** Share of a row's height the band fills. */
 const BAND_FILL = 0.8;
 /** Rows are no taller than this when they share the panel height. */
@@ -230,10 +234,13 @@ function TimelineChart(props: TimelineChartProps): ReactElement {
   const fixedRow = rowHeight && rowHeight > 0 ? rowHeight : undefined;
   const autoRow = Math.min(
     MAX_AUTO_ROW_HEIGHT,
-    Math.max(MIN_ROW_HEIGHT, (height - AXIS_HEIGHT) / Math.max(1, rows.length)),
+    Math.max(
+      MIN_ROW_HEIGHT,
+      Math.floor((height - AXIS_HEIGHT - GRID_PAD) / Math.max(1, rows.length)),
+    ),
   );
   const row = fixedRow ?? autoRow;
-  const chartHeight = Math.ceil(rows.length * row + AXIS_HEIGHT + 4);
+  const chartHeight = Math.ceil(rows.length * row + AXIS_HEIGHT + GRID_PAD);
   // Too many rows: the panel scrolls and the time axis moves to the top, where it stays readable.
   const scrolls = chartHeight > height;
   const chartWidth = Math.max(0, width - (scrolls ? SCROLLBAR_WIDTH : 0));
@@ -303,9 +310,9 @@ function TimelineChart(props: TimelineChartProps): ReactElement {
       animation: false,
       grid: {
         left: labelWidth + 12,
-        right: 12,
-        top: scrolls ? AXIS_HEIGHT : 4,
-        bottom: scrolls ? 4 : AXIS_HEIGHT,
+        right: GRID_RIGHT,
+        top: scrolls ? AXIS_HEIGHT : GRID_PAD,
+        bottom: scrolls ? GRID_PAD : AXIS_HEIGHT,
       },
       xAxis: {
         type: "time",
