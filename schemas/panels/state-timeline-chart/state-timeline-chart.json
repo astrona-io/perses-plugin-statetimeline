@@ -1,0 +1,17 @@
+{
+  "kind": "StateTimelineChart",
+  "spec": {
+    "mode": "label",
+    "rowLabels": ["exported_namespace", "name"],
+    "stateLabel": "ready",
+    "mappings": [
+      { "kind": "Value", "spec": { "value": "False", "result": { "value": "Failed", "color": "#e53935" } } },
+      { "kind": "Value", "spec": { "value": "Unknown", "result": { "value": "Reconciling", "color": "#fb8c00" } } },
+      { "kind": "Value", "spec": { "value": "True", "result": { "value": "Ready", "color": "#43a047" } } }
+    ],
+    "legend": { "position": "bottom" },
+    "sorting": "worst",
+    "showValues": true,
+    "mergeGapFactor": 2
+  }
+}
