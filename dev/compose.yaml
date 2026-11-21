@@ -13,7 +13,7 @@ services:
 
   # Loads the history with promtool before it starts, so the timeline is full from the first view.
   prometheus:
-    image: docker.io/prom/prometheus:v3.5.0
+    image: docker.io/prom/prometheus:v3.16.0
     entrypoint: ["/bin/sh", "-c"]
     command:
       - |
