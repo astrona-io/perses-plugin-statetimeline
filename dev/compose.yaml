@@ -5,7 +5,7 @@ name: statetimeline-dev
 services:
   # Writes six hours of history to the shared volume, then serves the live state.
   fake-metrics:
-    image: docker.io/library/python:3.13-alpine
+    image: docker.io/library/python:3.15-alpine
     command: ["python", "/app/fake_metrics.py", "--backfill", "/backfill/history.om", "--hours", "6"]
     volumes:
       - ./fake_metrics.py:/app/fake_metrics.py:ro,z
